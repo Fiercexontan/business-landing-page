@@ -21,24 +21,13 @@ async function submitForm() {
   status.textContent = '⏳ Sending your message...';
 
   try {
-    // Send to Formspree
-    const formspreeResponse = await fetch('https://formspree.io/f/mkoqgdlg', {
+    const response = await fetch('https://formspree.io/f/mkoqgdlg', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: JSON.stringify({ name, email, message })
     });
 
-    // Save to Airtable via Netlify function
-    const airtableResponse = await fetch('/.netlify/functions/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, message })
-    });
-
-    const airtableData = await airtableResponse.json();
-    console.log('Airtable result:', airtableData);
-
-    if (formspreeResponse.ok && airtableResponse.ok) {
+    if (response.ok) {
       status.style.color = 'green';
       status.textContent = '✅ Message sent! I will get back to you within 24 hours.';
       document.getElementById('name').value = '';
