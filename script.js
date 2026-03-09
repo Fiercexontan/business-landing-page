@@ -1,7 +1,3 @@
-const AIRTABLE_TOKEN = 'patnU7n4rTedxdDvf.2d8a1807d8e25d9e73ae2b761c6defa135ac21063fce6d8cb59a683e1ec38af3';
-const AIRTABLE_BASE_ID = 'app53UDjhCEgouV1E';
-const AIRTABLE_TABLE_ID = 'tblYMM9741ZLye9x8';
-
 async function submitForm() {
   const name = document.getElementById('name').value.trim();
   const email = document.getElementById('email').value.trim();
@@ -26,24 +22,21 @@ async function submitForm() {
 
   try {
     // Send to Formspree
-    const airtableResponse = await fetch(`https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`, {
+    const formspreeResponse = await fetch('https://formspree.io/f/mkoqgdlg', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        fields: {
-          Name: name,
-          Email: email,
-          Message: message,
-          Date: new Date().toISOString().split('T')[0]
-        }
-      })
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ name, email, message })
+    });
+
+    // Save to Airtable via Netlify function
+    const airtableResponse = await fetch('/.netlify/functions/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, message })
     });
 
     const airtableData = await airtableResponse.json();
-    console.log('Airtable response:', airtableData);
+    console.log('Airtable result:', airtableData);
 
     if (formspreeResponse.ok && airtableResponse.ok) {
       status.style.color = 'green';
