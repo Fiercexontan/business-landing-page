@@ -28,14 +28,18 @@ async function submitForm() {
       body: JSON.stringify({ name, email, message })
     });
 
-    // Send to n8n webhook — saves to Google Sheets and sends Gmail notification
-    await fetch('https://lincolnadura.app.n8n.cloud/webhook/contact-form', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, message })
-    });
+    // Send to n8n webhook — non blocking
+    try {
+      await fetch('https://lincolnadura.app.n8n.cloud/webhook/contact-form', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, message })
+      });
+    } catch (e) {
+      console.log('n8n webhook error:', e);
+    }
 
-    if (response.ok) {
+    if (formspreeResponse.ok) {
       status.style.color = 'green';
       status.textContent = '✅ Message sent! I will get back to you within 24 hours.';
       document.getElementById('name').value = '';
