@@ -21,9 +21,17 @@ async function submitForm() {
   status.textContent = '⏳ Sending your message...';
 
   try {
-    const response = await fetch('https://formspree.io/f/mkoqgdlg', {
+    // Send to Formspree
+    const formspreeResponse = await fetch('https://formspree.io/f/mkoqgdlg', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ name, email, message })
+    });
+
+    // Send to n8n webhook — saves to Google Sheets and sends Gmail notification
+    await fetch('https://lincolnadura.app.n8n.cloud/webhook/contact-form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, message })
     });
 
